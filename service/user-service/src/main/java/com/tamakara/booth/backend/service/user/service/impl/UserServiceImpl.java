@@ -1,8 +1,9 @@
 package com.tamakara.booth.backend.service.user.service.impl;
 
 import com.tamakara.booth.backend.common.client.FileClient;
-import com.tamakara.booth.backend.common.util.JWTUtil;
-import com.tamakara.booth.backend.service.user.domain.dto.LoginFormDTO;
+import com.tamakara.booth.backend.common.client.WxAuthClient;
+import com.tamakara.booth.backend.common.domain.pojo.WxSessionResponse;
+import com.tamakara.booth.backend.common.util.JwtUtil;
 import com.tamakara.booth.backend.service.user.domain.dto.RegisterFormDTO;
 import com.tamakara.booth.backend.service.user.domain.entity.User;
 import com.tamakara.booth.backend.service.user.domain.vo.UserVO;
@@ -11,43 +12,47 @@ import com.tamakara.booth.backend.service.user.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     private final UserMapper userMapper;
     private final FileClient fileClient;
+    private final WxAuthClient wxAuthClient;
+
+    @Value("${wx.appid}")
+    private String appid;
+
+    @Value("${wx.secret}")
+    private String secret;
 
     @Override
     @Transactional
-    public String login(LoginFormDTO loginFormDTO) {
-        if (loginFormDTO.getPhone() == null || loginFormDTO.getPassword() == null) {
-            throw new RuntimeException("手机号或密码不能为空");
+    public String login(String code) {
+        WxSessionResponse wxSessionResponse = wxAuthClient.code2Session(appid, secret, code, "authorization_code");
+
+        if (wxSessionResponse == null || wxSessionResponse.getOpenid() == null) {
+            throw new RuntimeException("微信登录失败：" + wxSessionResponse.getErrmsg());
         }
 
-        User user = userMapper.getUserByPhoneAndPassword(loginFormDTO.getPhone(), loginFormDTO.getPassword());
-
-        if (user == null) throw new RuntimeException("手机号或密码错误");
-
-        return JWTUtil.generateJWT(user.getId(), 3600 * 24 * 7);
-    }
-
-    @Override
-    @Transactional
-    public String register(RegisterFormDTO registerFormDTO) {
-        if (registerFormDTO.getPhone() == null || registerFormDTO.getPassword() == null) {
-            throw new RuntimeException("手机号或密码或或用户名不能为空");
+        User user = userMapper.selectByOpenId(wxSessionResponse.getOpenid());
+        if (user == null) {
+            user = new User();
+            user.setOpenId(wxSessionResponse.getOpenid());
+            user.setCreatedAt(Instant.now());
+            userMapper.insert(user);
         }
 
-        User user = new User();
-        userMapper.insert(user);
-        user.setUsername("User" + user.getId());
-        BeanUtils.copyProperties(registerFormDTO, user);
-        updateById(user);
+        user.setLastLoginAt(Instant.now());
+        user.setIsOnline(true);
+        userMapper.updateById(user);
 
-        return JWTUtil.generateJWT(user.getId(), 3600 * 24 * 7);
+        return JwtUtil.generateJWT(user.getId(), 3600 * 24);
     }
 
     @Override
@@ -74,20 +79,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public Boolean pay(Long userId, Long sellerId, Double amount) {
-        User user = userMapper.selectById(userId);
+    public Boolean pay(Long buyerId, Long sellerId, Double amount) {
+        User buyer = userMapper.selectById(buyerId);
         User seller = userMapper.selectById(sellerId);
-        if (user == null || seller == null) {
+        if (buyer == null || seller == null) {
             throw new RuntimeException("用户不存在");
         }
 
-        if (user.getBalance() < amount) {
+        if (buyer.getBalance() < amount) {
             throw new RuntimeException("余额不足");
         }
 
-        user.setBalance(user.getBalance() - amount);
+        buyer.setBalance(buyer.getBalance() - amount);
         seller.setBalance(seller.getBalance() + amount);
-        userMapper.updateById(user);
+        userMapper.updateById(buyer);
         userMapper.updateById(seller);
 
         return true;

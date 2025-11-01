@@ -1,6 +1,5 @@
 package com.tamakara.booth.backend.service.user.controller;
 
-import com.tamakara.booth.backend.service.user.domain.dto.LoginFormDTO;
 import com.tamakara.booth.backend.service.user.domain.dto.RegisterFormDTO;
 import com.tamakara.booth.backend.service.user.domain.vo.UserVO;
 import com.tamakara.booth.backend.service.user.service.UserService;
@@ -17,20 +16,13 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "登录")
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginFormDTO loginFormDTO) {
-        String token = userService.login(loginFormDTO);
+    @GetMapping("/login")
+    public ResponseEntity<String> loginByWeChat(@RequestParam String code) {
+        String token = userService.login(code);
         return ResponseEntity.ok(token);
     }
 
-    @Operation(summary = "注册")
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterFormDTO registerFormDTO) {
-        String token = userService.register(registerFormDTO);
-        return ResponseEntity.ok(token);
-    }
-
-    @Operation(summary = "获取用户信息")
+    @Operation(summary = "获取商家信息")
     @GetMapping("/vo/user")
     public ResponseEntity<UserVO> getUserVO(
             @RequestHeader(name = "X-USER-ID", required = false) Long userId,
@@ -44,11 +36,11 @@ public class UserController {
     @Operation(summary = "支付")
     @PostMapping("/pay")
     public ResponseEntity<Boolean> pay(
-            @RequestHeader("X-USER-ID") Long userId,
+            @RequestParam("buyerId") Long buyerId,
             @RequestParam("sellerId") Long sellerId,
             @RequestParam("amount") Double amount
     ) {
-        Boolean result = userService.pay(userId, sellerId, amount);
+        Boolean result = userService.pay(buyerId, sellerId, amount);
         return ResponseEntity.ok(result);
     }
 }

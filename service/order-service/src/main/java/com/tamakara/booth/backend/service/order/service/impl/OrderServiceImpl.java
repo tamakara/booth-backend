@@ -1,6 +1,7 @@
 package com.tamakara.booth.backend.service.order.service.impl;
 
 import com.tamakara.booth.backend.common.client.ItemClient;
+import com.tamakara.booth.backend.common.client.UserClient;
 import com.tamakara.booth.backend.common.domain.vo.ItemVO;
 import com.tamakara.booth.backend.service.order.domain.entity.Order;
 import com.tamakara.booth.backend.service.order.domain.pojo.OrderState;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
     private final OrderMapper orderMapper;
+    private final UserClient userClient;
     private final ItemClient itemClient;
 
     @Override
@@ -46,6 +48,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         itemClient.lockItem(itemId);
         return order.getId();
+    }
+
+    @Override
+    public Boolean payOrder(Long userId, Long orderId) {
+        Order order = orderMapper.selectById(orderId);
+        Boolean result = userClient.pay(userId, orderId, order.getPayAmount()).getBody();
+        return result;
     }
 
     @Override

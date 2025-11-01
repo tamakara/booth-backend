@@ -2,16 +2,11 @@ package com.tamakara.booth.backend.common.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
-import javax.naming.ldap.LdapName;
 import java.time.Instant;
 import java.util.UUID;
 
-public class JWTUtil {
+public class JwtUtil {
     private static final String secret = "tamakara";
 
     public static String generateJWT(long userId, long expiration) {

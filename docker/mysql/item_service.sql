@@ -8,7 +8,7 @@ CREATE TABLE `item`
 (
     `id`                   BIGINT       NOT NULL AUTO_INCREMENT,
     `user_id`              BIGINT       NOT NULL,
-    `state_code`           INTEGER      NOT NULL,
+    `item_state`                INTEGER      NOT NULL,
     `delivery_method_code` INTEGER      NOT NULL,
     `price`                DOUBLE       NOT NULL,
     `postage`              DOUBLE      NOT NULL,

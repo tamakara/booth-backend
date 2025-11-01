@@ -29,6 +29,6 @@ mybatis-plus:
 
 minio:
   endpoint: http://172.31.241.156:9000
-  access-key: tamakara
+  access-key: root
   secret-key: 0d000721
-  bucket-name: bakabooth
+  bucket-name: booth

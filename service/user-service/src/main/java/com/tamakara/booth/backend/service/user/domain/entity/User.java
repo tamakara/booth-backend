@@ -11,6 +11,9 @@ public class User {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField(value = "open_id")
+    private String openId;
+
     @TableField(value = "is_online")
     private Boolean isOnline;
 
@@ -46,6 +49,9 @@ public class User {
 
     @TableField(value = "updated_at")
     private Instant updatedAt;
+
+    @TableField(value = "last_login_at")
+    private Instant LastLoginAt;
 
     public User() {
         this.phone = "";

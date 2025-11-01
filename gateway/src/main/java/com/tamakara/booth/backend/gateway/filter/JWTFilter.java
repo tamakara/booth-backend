@@ -1,6 +1,6 @@
 package com.tamakara.booth.backend.gateway.filter;
 
-import com.tamakara.booth.backend.common.util.JWTUtil;
+import com.tamakara.booth.backend.common.util.JwtUtil;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class JWTFilter implements GlobalFilter, Ordered {
             token = token.substring(7);
 
             try {
-                long userId = JWTUtil.decodeJWT(token);
+                long userId = JwtUtil.decodeJWT(token);
                 exchange = exchange
                         .mutate()
                         .request(r -> r.header("X-USER-ID", String.valueOf(userId)))

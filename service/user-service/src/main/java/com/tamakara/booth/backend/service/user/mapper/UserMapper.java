@@ -8,10 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
-    default User getUserByPhoneAndPassword(String phone, String password) {
+    default User selectByOpenId(String openId) {
         return selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getPhone, phone)
-                .eq(User::getPassword, password)
+                .eq(User::getOpenId, openId)
         );
     }
 

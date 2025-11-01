@@ -9,7 +9,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - bakabooth-network
+      - booth-network
     restart: always
 
   nacos:
@@ -24,7 +24,7 @@ services:
       - MYSQL_SERVICE_USER=nacos
       - MYSQL_SERVICE_PASSWORD=0d000721
       - NACOS_AUTH_TOKEN=dGFtYWthcmF0YW1ha2FyYXRhbWFrYXJhdGFtYWthcmE=
-      - NACOS_AUTH_IDENTITY_KEY=tamakara
+      - NACOS_AUTH_IDENTITY_KEY=root
       - NACOS_AUTH_IDENTITY_VALUE=0d000721
       - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
     ports:
@@ -36,7 +36,7 @@ services:
     volumes:
       - nacos-data:/home/nacos/data
     networks:
-      - bakabooth-network
+      - booth-network
     restart: always
 
   minio:
@@ -46,10 +46,12 @@ services:
       - "172.31.241.156:9000:9000"
       - "172.31.241.156:9001:9001"
     environment:
-      MINIO_ROOT_USER: tamakara
+      MINIO_ROOT_USER: root
       MINIO_ROOT_PASSWORD: 0d000721
     volumes:
       - minio_data:/data
+    networks:
+      - booth-network
     restart: always
     command: server /data --console-address ":9001"
 
@@ -59,5 +61,5 @@ volumes:
   minio_data:
 
 networks:
-  bakabooth-network:
+  booth-network:
     driver: bridge

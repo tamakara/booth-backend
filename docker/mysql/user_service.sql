@@ -7,6 +7,7 @@ USE user_service_db;
 CREATE TABLE `user`
 (
     `id`             BIGINT       NOT NULL AUTO_INCREMENT,
+    `open_id`        VARCHAR(255) NOT NULL,
     `is_online`      BOOLEAN      NOT NULL,
     `is_open`        BOOLEAN      NOT NULL,
     `phone`          CHAR(11)     NOT NULL,
@@ -17,6 +18,7 @@ CREATE TABLE `user`
     `followers`      BIGINT       NOT NULL,
     `avatar_file_id` BIGINT       NOT NULL,
     `balance`        DOUBLE       NOT NULL,
+    `last_login_at`     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `created_at`     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at`     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),

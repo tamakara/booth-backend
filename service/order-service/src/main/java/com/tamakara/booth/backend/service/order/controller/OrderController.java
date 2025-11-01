@@ -24,6 +24,16 @@ public class OrderController {
         return ResponseEntity.ok(orderId);
     }
 
+    @Operation(summary = "订单付款")
+    @PutMapping("/pay/{orderId}")
+    public ResponseEntity<Boolean> payOrder(
+            @RequestHeader("X-USER-ID") Long userId,
+            @PathVariable("orderId") Long orderId
+    ) {
+        Boolean isPaid = orderService.payOrder(userId, orderId);
+        return ResponseEntity.ok(isPaid);
+    }
+
     @Operation(summary = "获取订单信息")
     @GetMapping("/vo/order/{orderId}")
     public ResponseEntity<OrderVO> getOrderVO(
